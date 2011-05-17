@@ -80,6 +80,16 @@ Use Notes
 * In image preview, click Edit / Preferences and turn off image smoothing
   (smoothing makes checking focus difficult).
 
+Credits
+=======
+
+This software was funded by the UK Arts and Humanities Research Council
+"Reflectance Transformation Imaging System for Ancient Document Artefacts
+Projects" under the Digital Equipment and Database Enhancement for Impact
+Scheme. Details are available at:
+
+http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html
+
 Todo
 ====
 
