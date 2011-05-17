@@ -18,6 +18,45 @@ the headers for this library available: jpeglib.h and jerror.h.
 
 It can also control a lighting system for doing Reflectance Transform Imaging,
 though you'll need to customise it for your exact dome and lighting hardware.
+If you don't have a dome and lighting system, you can just use the program to
+take pictures.
+
+The whole thing is in Python so it should be very easy to customise.
+
+Screenshots
+===========
+
+http://www.vips.ecs.soton.ac.uk/development/rti/snapshot11.jpg
+
+The program as it starts up. The main area is a live preview running at
+about 20 fps. My laptop will go up to about 50 fps, but most cameras can't
+supply frames that quickly and anyway we don't want to flood the poor computer,
+so the frame rate is throttled. 20 fps seems fine for manual focussing.
+
+If you mouse over the live preview, a 'pause' button appears allowing you
+to stop frame grabbing.
+
+The camera is autodetected on startup. 
+
+The buttons along the bottom of the window let you control the dome and
+lighting system (if no dome is found, these do nothing), set camera controls,
+take a single photo, take an RTI preview, and do a full RTI capture.
+
+http://www.vips.ecs.soton.ac.uk/development/rti/snapshot13.jpg
+
+The window you get if you click the camera control button. This is generated
+by interrogating the camera for the controls it supports. The screenshot is
+for a Nikon D3X.
+
+The controls along the bottom let you refresh the GUI from the camera (if you
+change one of the camera controls yourself), switch between presets, add a
+preset, and remove a preset. Presets are remembered between sessions. A
+special preset called 'startup' records the state of the camera when the
+program was started.
+
+http://www.vips.ecs.soton.ac.uk/development/rti/snapshot8.jpg
+
+During RTI capture. 
 
 Use Notes
 =========
