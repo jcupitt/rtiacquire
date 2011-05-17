@@ -6,7 +6,7 @@
 from distutils.core import setup, Extension
 
 setup(name='RTIAcquire',
-    version='1.0',
+    version='1.1dev',
     packages=['rtiacquire'],
     scripts=['bin/RTIAcquire'],
     author='J. Cupitt',

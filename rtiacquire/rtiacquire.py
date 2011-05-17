@@ -381,6 +381,15 @@ class MainWindow(gtk.Window):
 
         self.lights = lights.Lights()
 
+        # try to reset the lights ... if this fails, disable dome controls
+        try:
+            self.dome_controls = True
+            name = self.leds.get_names()[0]
+            self.lights.set_triple(self.leds.get_bytes(name)[0])
+        except lights.Error as e:
+            logging.debug('no lights found, disabling dome controls')
+            self.dome_controls = False
+
         self.vbox = gtk.VBox(False, 0)
         self.add(self.vbox)
         self.vbox.show()
@@ -448,22 +457,24 @@ class MainWindow(gtk.Window):
         self.toolbar.pack_end(button, False, False)
         button.show()
 
-        self.dome_picker = gtk.combo_box_new_text()
-        for name in self.leds.get_names():
-            self.dome_picker.append_text(name)
-        self.dome_picker.set_active(0)
-        self.dome_picker.connect('changed', self.dome_picker_cb, None)
-        self.toolbar.pack_start(self.dome_picker, False, False)
-        self.dome_picker.show()
+        if self.dome_controls:
+            self.dome_picker = gtk.combo_box_new_text()
+            for name in self.leds.get_names():
+                self.dome_picker.append_text(name)
+            self.dome_picker.set_active(0)
+            self.dome_picker.connect('changed', self.dome_picker_cb, None)
+            self.toolbar.pack_start(self.dome_picker, False, False)
+            self.dome_picker.show()
 
-        self.light_picker = gtk.SpinButton(climb_rate = 1)
-        self.light_picker.set_numeric(True)
-        self.light_picker.set_wrap(True)
-        self.light_picker.set_increments(1, 1)
-        self.light_picker_refresh()
-        self.light_picker.connect('value_changed', self.light_picker_cb, None)
-        self.toolbar.pack_start(self.light_picker, False, False)
-        self.light_picker.show()
+            self.light_picker = gtk.SpinButton(climb_rate = 1)
+            self.light_picker.set_numeric(True)
+            self.light_picker.set_wrap(True)
+            self.light_picker.set_increments(1, 1)
+            self.light_picker_refresh()
+            self.light_picker.connect('value_changed', 
+                    self.light_picker_cb, None)
+            self.toolbar.pack_start(self.light_picker, False, False)
+            self.light_picker.show()
 
         button = gtk.Button()
         menu_image = gtk.image_new_from_stock(gtk.STOCK_PREFERENCES, 
@@ -482,15 +493,16 @@ class MainWindow(gtk.Window):
         self.toolbar.pack_start(photo, False, False)
         photo.show()
 
-        photo = gtk.Button('Preview')
-        photo.connect('clicked', self.rti_preview_cb, None)
-        self.toolbar.pack_start(photo, False, False)
-        photo.show()
+        if self.dome_controls:
+            photo = gtk.Button('Preview')
+            photo.connect('clicked', self.rti_preview_cb, None)
+            self.toolbar.pack_start(photo, False, False)
+            photo.show()
 
-        photo = gtk.Button('Capture ...')
-        photo.connect('clicked', self.rti_capture_cb, None)
-        self.toolbar.pack_start(photo, False, False)
-        photo.show()
+            photo = gtk.Button('Capture ...')
+            photo.connect('clicked', self.rti_capture_cb, None)
+            self.toolbar.pack_start(photo, False, False)
+            photo.show()
 
         self.info.msg('Welcome to RTI Acquire', 'v1.0, May 2011')
 

@@ -3,7 +3,7 @@
 """This module wraps up communication with the light controller.
 
 Lights -- a connection to the light controller
-LightError -- the exception we can raise
+Error -- the exception we can raise
 
 Author: J.Cupitt
 Created as part of the AHRC RTI project in 2011
@@ -15,7 +15,7 @@ import serial
 import time
 import logging
 
-class LightError(Exception):
+class Error(Exception):
 
     """An error from the lights.
 
@@ -55,14 +55,14 @@ class Lights:
         try:
             port = serial.Serial(portname, 38400, timeout = 0.1)
         except serial.SerialException as e:
-            raise LightError('Unable to connect to lights', str(e))
+            raise Error('Unable to connect to lights', str(e))
 
         time.sleep(1)
         port.write('?')
         resp = port.readline()
         if resp != 'USB I/O 24R1\r\n':
             port.close()
-            raise LightError('Unable to connect to lights', 
+            raise Error('Unable to connect to lights', 
                 'Bad response received - %s' % resp)
 
         # init ports
@@ -94,7 +94,7 @@ class Lights:
                     logging.debug('** lights found on %s', portname)
                     break
             else:
-                raise LightError('No lights found', 
+                raise Error('No lights found', 
                     'No light controller found on any port')
 
             self.port = port
@@ -111,7 +111,7 @@ class Lights:
 
         triple -- three bytes as [a, b, c] to send to the three channels
 
-        This method can raise LightError if no controller can be found or a
+        This method can raise Error if no controller can be found or a
         connection error occurs.
         """
 
