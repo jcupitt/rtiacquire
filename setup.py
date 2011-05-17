@@ -17,5 +17,5 @@ setup(name='RTIAcquire',
         libraries=['jpeg'])],
     package_data={'rtiacquire': ['data/*']},
     requires=['pyserial'],
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
 )
