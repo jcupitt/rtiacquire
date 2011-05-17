@@ -1,0 +1,6 @@
+bin
+build
+dist
+MANIFEST
+*.pyc
+*.o
