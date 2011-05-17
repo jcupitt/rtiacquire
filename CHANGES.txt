@@ -3,3 +3,4 @@ v1.0, 10/5/11 -- Initial release.
 v1.1dev, 17/5/11 
     - forgot some files in the move to git
     - disable dome controls if no dome is found
+    - try to enable Canon capture

@@ -101,9 +101,13 @@ class MainWindow(gtk.Window):
         if self.config_window:
             self.config_window.present()
         else:
-            self.config_window = config.Config(options, self.camera)
-            self.config_window.connect('destroy', self.config_destroy_cb)
-            self.config_window.show()
+            try:
+                self.config_window = config.Config(options, self.camera)
+            except camera.Error as e:
+                self.info.err(e.message, e.detail)
+            else:
+                self.config_window.connect('destroy', self.config_destroy_cb)
+                self.config_window.show()
 
     def photo_cb(self, widget, data = None):
         live = self.preview.get_live()

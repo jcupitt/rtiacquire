@@ -133,6 +133,22 @@ class Camera:
         self.preview_file = ctypes.c_void_p()
         gp.gp_file_new(ctypes.byref(self.preview_file))
 
+    def set_canon_capture(self, onoff):
+        """Enable Canon preview mode.
+
+        Canon cameras have to have this extra setting turned on, apparently.
+        Calling this for non-canon cameras is harmless.
+
+        onoff - 1 to enable preview, 0 to disable
+        """
+        try:
+            config = Config(self)
+            widget = config.get_root_widget().get_child_by_name('capture')
+            widget.set_value(onoff)
+            config.set_config()
+        except:
+            pass
+
     def connect(self):
         """Connect to the camera.
 
@@ -147,6 +163,7 @@ class Camera:
             if retval != GP_OK:
                  self.release()
                  raise Error('Unable to connect to camera')
+            self.set_canon_capture(1)
             logging.debug('** camera connected')
 
     def release(self):
@@ -173,10 +190,6 @@ class Camera:
         """
 
         self.connect()
-
-        # the first frame after a reconnect fails on the Nikon, so grab a
-        # preview first
-        # self.preview()
 
         logging.debug('** camera capture')
         cam_path = CameraFilePath()
@@ -476,7 +489,7 @@ class Widget:
 
     def set_value(self, value):
         """Set the value of the widget. 
-        
+
         value should be float for RANGE, int for toggle and string for TEXT,
         MENU and RADIO.
         """
