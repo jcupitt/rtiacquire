@@ -23,6 +23,10 @@ take pictures.
 
 The whole thing is in Python so it should be very easy to customise.
 
+Install with something like:
+
+$ python setup.py install --prefix=/install/path/here
+
 Screenshots
 ===========
 
