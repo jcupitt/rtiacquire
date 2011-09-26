@@ -23,10 +23,6 @@ take pictures.
 
 The whole thing is in Python so it should be very easy to customise.
 
-Install with something like:
-
-$ python setup.py install --prefix=/install/path/here
-
 Screenshots
 ===========
 
@@ -65,6 +61,16 @@ During RTI capture.
 Use Notes
 =========
 
+* Install with something like:
+
+	python setup.py install --prefix=/my/install/prefix
+
+  And run with
+
+  	RTIAcquire
+
+  Make quicklaunch links in the usual way for convenience etc.
+
 * When you plug the camera in you may get a desktop camera icon --
   right-click and select "unmount" so this program can open it.
 
@@ -97,6 +103,8 @@ http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html
 Todo
 ====
 
+* tooltips
+
 * in camera.py, try ignoring the return value from gp.gp_camera_capture(), do
   we still get a sensible value for cam_path? perhaps only fail if cam_path is
   useless
@@ -104,22 +112,46 @@ Todo
   if this works, we might be able to get rid of the preview() at the beginning 
   of capture_to_file()
 
+* break main out into a separate program
 
+* name private members with a leading _?
 
+* test reliability
+
+* test no refocus during acquire, document exact camera mode to stop this
+
+	can we drive focus somehow? could mark a feature on the preview and
+	focus on that
+
+Major new features
+==================
 
 * how do we do light calibration? a separate program?
-
-* can we get the preview to reflect actual exposure? it seems to always do
-  auto-expose
-
-    nope, doesn't seem to be possible
 
 * build and bundle the ptm fitter and viewer
 
 * see the OS X bundler, investigate prebuilt pygtk on OS X packages
 
-* break main out into a separate program
+* Phil wrote a tiny gui wrapper for doing the fitting - so an extra Build button
+could be added to yours which runs his script (as the path is needed)
 
-* name private members with a leading _?
+	fitter notes here
 
+	http://rti.ecs.soton.ac.uk/wiki/Oxford:Setup#Fitter
+
+	they need to be able to batch fit
+
+	also, crop before fit to speed the process up
+
+wontfix
+=======
+
+* stop mousewheel changing combo boxes
+
+	not possible to fix, sadly
+
+* can we get the preview to reflect actual exposure? it seems to always do
+  auto-expose
+
+	nope, doesn't seem to be possible
 
