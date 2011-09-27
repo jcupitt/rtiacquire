@@ -84,12 +84,7 @@ class MainWindow(gtk.Window):
         else:
             self.live.set_image(self.play_image)
 
-        try:
-            self.preview.set_live(live)
-        except camera.Error as e:
-            self.info.err(e.message, e.detail)
-            if live:
-                self.set_live(False)
+        self.preview.set_live(live)
 
     def live_cb(self, widget, data = None):
         self.set_live(not self.preview.get_live())
@@ -147,10 +142,7 @@ class MainWindow(gtk.Window):
 
     def lights_refresh(self):
         light = self.light_picker.get_value_as_int() - 1
-        try:
-            self.set_lights(light)
-        except lights.LightError as e:
-            self.info.err(e.message, e.detail)
+        self.set_lights(light)
 
     def dome_picker_cb(self, widget, data = None):
         self.light_picker_refresh()
@@ -178,21 +170,15 @@ class MainWindow(gtk.Window):
 
     # restore state after a long action
     def action_stop(self):
-        self.progress.stop()
+        if not self.busy:
+            return 
         self.busy = False
+
+        self.progress.stop()
         self.toolbar.set_sensitive(True)
         self.live.set_sensitive(True)
         self.set_live(self.old_live)
         self.lights_refresh()
-
-    def action_run(self, message, action):
-        if not self.action_start(message):
-            return False
-
-        if not action():
-            return False
-
-        return True
 
     # our general pattern for any long action
     # return True for success, False for error or cancel
@@ -200,12 +186,13 @@ class MainWindow(gtk.Window):
         result = False
 
         try:
-            result = self.action_run(message, action)
+            if self.action_start(message):
+                result = action()
         except Exception as e:
-            self.info.err('Unhandled exception', e.message)
+            self.info.err(e.message, e.detail)
             result = False
-        finally:
-            self.action_stop()
+
+        self.action_stop()
 
         return result
 
@@ -214,11 +201,7 @@ class MainWindow(gtk.Window):
         for i in range(0, nlights):
             if self.progress.progress(i / float(nlights)):
                 return False
-            try:
-                self.set_lights(i)
-            except lights.LightError as e:
-                self.info.err(e.message, e.detail)
-                return False
+            self.set_lights(i)
 
             # we need to wait to make sure we get a fresh preview frame
             time.sleep(0.1)
@@ -270,19 +253,9 @@ class MainWindow(gtk.Window):
         for i in range(0, nlights):
             if self.progress.progress(i / float(nlights)):
                 return False
-            try:
-                self.set_lights(i)
-            except lights.LightError as e:
-                self.info.err(e.message, e.detail)
-                return False
+            self.set_lights(i)
 
-            target = os.path.join(self.target, '%d' % i)
-
-            try:
-                self.camera.capture_to_file(target)
-            except camera.Error as e:
-                self.info.err(e.message, e.detail)
-                return False
+            self.camera.capture_to_file(os.path.join(self.target, '%d' % i))
 
             # stops the camera locking up
             time.sleep(0.1)
@@ -366,7 +339,7 @@ class MainWindow(gtk.Window):
         self.busy = False
 
         self.leds = ledmap.Ledmap(os.path.join(source_dir, 'data', 
-		'led-maps.txt'))
+                                               'led-maps.txt'))
 
         logging.debug('loaded %d maps', len(self.leds.get_names()))
         for name in self.leds.get_names():
@@ -497,13 +470,13 @@ class MainWindow(gtk.Window):
         photo.show()
 
         if self.dome_controls:
-            photo = gtk.Button('Preview')
+            photo = gtk.Button('RTI Preview')
             photo.set_tooltip_text("Take preview RTI image")
             photo.connect('clicked', self.rti_preview_cb, None)
             self.toolbar.pack_start(photo, False, False)
             photo.show()
 
-            photo = gtk.Button('Capture ...')
+            photo = gtk.Button('RTI Capture ...')
             photo.set_tooltip_text("Start full RTI acquisition")
             photo.connect('clicked', self.rti_capture_cb, None)
             self.toolbar.pack_start(photo, False, False)
