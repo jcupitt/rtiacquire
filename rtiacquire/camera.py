@@ -43,7 +43,7 @@ class Error(Exception):
         logging.debug('camera: Error %s %s', self.message, self.detail)
 
     def __str__(self):
-        return '%s - %s' %(self.message, self.detail)
+        return '%s - %s' % (self.message, self.detail)
 
 # gphoto structures
 """ From 'gphoto2-camera.h'
@@ -102,6 +102,12 @@ LOGFUNC = ctypes.CFUNCTYPE(None,
                 VaList, ctypes.c_void_p)
 def gplog(level, domain, fmt, args, data):
     global last_detail
+
+    # this happens very often when the preview grab fails, hide it to stop the
+    # logs going crazy
+    if domain == "ptp2/usb_getresp":
+        if fmt == "request code 0x%04x getting resp error 0x%04x":
+            return
 
     # buf = ctypes.create_string_buffer(1024)
     # libc.vsnprintf(buf, 1024, fmt, args)
@@ -276,7 +282,16 @@ class Camera:
         logging.debug('** camera preview to file %s', filename)
         cam_file = ctypes.c_void_p()
         gp.gp_file_new(ctypes.byref(cam_file))
-        retval = gp.gp_camera_capture_preview(self.camera, cam_file, context)
+
+        # capture preview can fail on a Nikon, retry up to three times
+        for i in range(0, 3):
+            retval = gp.gp_camera_capture_preview(self.camera, 
+                                                  cam_file, context)
+            if retval == GP_OK:
+                break
+            else:
+                logging.debug('preview retry %d', i)
+
         if retval != GP_OK:
             gp.gp_file_unref(cam_file)
             logging.error('preview capture error')

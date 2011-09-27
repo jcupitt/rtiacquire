@@ -336,6 +336,7 @@ class Config(gtk.Window):
         quit_image = gtk.image_new_from_stock(gtk.STOCK_QUIT, 
                         gtk.ICON_SIZE_SMALL_TOOLBAR)
         quit_image.show()
+        button.set_tooltip_text("Close settings")
         button.connect('clicked', self.destroy_cb, None)
         button.add(quit_image)
         toolbar.pack_end(button, False, False)
@@ -345,6 +346,7 @@ class Config(gtk.Window):
         refresh_image = gtk.image_new_from_stock(gtk.STOCK_REFRESH, 
                         gtk.ICON_SIZE_SMALL_TOOLBAR)
         refresh_image.show()
+        button.set_tooltip_text("Reload settings from camera")
         button.connect('clicked', self.refresh_cb, None)
         button.add(refresh_image)
         toolbar.pack_start(button, False, False)
@@ -354,6 +356,7 @@ class Config(gtk.Window):
         for name in self.preset_table:
             self.preset_picker.append_text(name)
         self.preset_picker.set_active(-1)
+        self.preset_picker.set_tooltip_text("Load settings from preset")
         self.preset_picker.connect('changed', self.preset_picker_cb, None)
         toolbar.pack_start(self.preset_picker, False, False)
         self.preset_picker.show()
@@ -362,6 +365,7 @@ class Config(gtk.Window):
         add_image = gtk.image_new_from_stock(gtk.STOCK_ADD, 
                         gtk.ICON_SIZE_SMALL_TOOLBAR)
         add_image.show()
+        button.set_tooltip_text("Save current settings as new preset")
         button.connect('clicked', self.add_cb, None)
         button.add(add_image)
         toolbar.pack_start(button, False, False)
@@ -371,6 +375,7 @@ class Config(gtk.Window):
         remove_image = gtk.image_new_from_stock(gtk.STOCK_REMOVE, 
                         gtk.ICON_SIZE_SMALL_TOOLBAR)
         remove_image.show()
+        button.set_tooltip_text("Remove current preset")
         button.connect('clicked', self.remove_cb, None)
         button.add(remove_image)
         toolbar.pack_start(button, False, False)

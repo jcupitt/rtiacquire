@@ -2,9 +2,8 @@
 
 """Our main application window.
 
-this is the main program
 It is designed to capture sequences of images for RTI systems based on 
-the design from the ECS dept. University of Southampton
+the design from the ECS dept. University of Southampton.
 
 Author: J.Cupitt
 Created as part of the AHRC RTI project in 2011
@@ -47,6 +46,7 @@ lights_timeout = 30000
 
 # the width of the camera preview
 # the Nikon has a 640 x 426 preview, I don't know what other cameras have,
+# of whether libgphoto2 has an easy way to find this out
 # hardwire this for now
 preview_width = 640
 
@@ -210,10 +210,6 @@ class MainWindow(gtk.Window):
         return result
 
     def rti_preview(self):
-        # if we've not previewed before, the first capture is very slow and
-        # can often fail ... do a dummy grab to get that out of the way
-        self.camera.preview()
-
         nlights = len(self.get_lights())
         for i in range(0, nlights):
             if self.progress.progress(i / float(nlights)):
@@ -267,9 +263,10 @@ class MainWindow(gtk.Window):
 
     def rti_capture(self):
         logging.debug('starting capture to %s', self.target)
-        start = time.time()
 
+        start = time.time()
         nlights = len(self.get_lights())
+
         for i in range(0, nlights):
             if self.progress.progress(i / float(nlights)):
                 return False
@@ -279,25 +276,20 @@ class MainWindow(gtk.Window):
                 self.info.err(e.message, e.detail)
                 return False
 
-            # the Nikon is unreliable if you grab many frames in a row :-(
-            # release the camera first to make it reconnect on every frame
-            self.camera.release()
-
             target = os.path.join(self.target, '%d' % i)
-            tries = 0
-            success = False
-            time.sleep(0.5)
-            while tries < 3 and not success:
-                try:
-                    self.camera.capture_to_file(target)
-                except:
-                    tries += 1
-                    self.camera.preview()
-                else:
-                    success = True
 
-            if not success:
-                raise camera.Error('Capture failure')
+            try:
+                self.camera.capture_to_file(target)
+            except camera.Error as e:
+                self.info.err(e.message, e.detail)
+                return False
+
+            # stops the camera locking up
+            time.sleep(0.1)
+
+            # unless you preview between captures, the Nikon D3X will autofocus,
+            # AF-S mode
+            self.camera.preview()
 
         logging.debug('capture done in %fs', time.time() - start)
 
@@ -341,7 +333,7 @@ class MainWindow(gtk.Window):
                                     'Create %s failed with %s' % 
                                        (target, repr(e)))
                     return
-        
+
         # record camera settings
         try:
             f = open(os.path.join(filename, 'camsettings.txt'), 'w')
@@ -360,8 +352,9 @@ class MainWindow(gtk.Window):
             return
 
         self.target = os.path.join(filename, 'original-captures')
+
         self.action('Full capture to %s ...' % self.target, 
-                self.rti_capture)
+                    self.rti_capture)
 
     def __init__(self):
         gtk.Window.__init__(self)
@@ -443,6 +436,7 @@ class MainWindow(gtk.Window):
                         gtk.ICON_SIZE_SMALL_TOOLBAR)
         self.live = gtk.Button()
         self.live.set_image(self.play_image)
+        self.live.set_tooltip_text("Start/stop live preview")
         self.live.connect('clicked', self.live_cb, None)
         eb.add(self.live)
         self.live.show()
@@ -456,6 +450,7 @@ class MainWindow(gtk.Window):
         quit_image = gtk.image_new_from_stock(gtk.STOCK_QUIT, 
                         gtk.ICON_SIZE_SMALL_TOOLBAR)
         quit_image.show()
+        button.set_tooltip_text("Quit RTIAcquire")
         button.connect('clicked', self.destroy_cb, None)
         button.add(quit_image)
         self.toolbar.pack_end(button, False, False)
@@ -466,6 +461,7 @@ class MainWindow(gtk.Window):
             for name in self.leds.get_names():
                 self.dome_picker.append_text(name)
             self.dome_picker.set_active(0)
+            self.dome_picker.set_tooltip_text("Select lighting system")
             self.dome_picker.connect('changed', self.dome_picker_cb, None)
             self.toolbar.pack_start(self.dome_picker, False, False)
             self.dome_picker.show()
@@ -474,6 +470,7 @@ class MainWindow(gtk.Window):
             self.light_picker.set_numeric(True)
             self.light_picker.set_wrap(True)
             self.light_picker.set_increments(1, 1)
+            self.light_picker.set_tooltip_text("Pick light")
             self.light_picker_refresh()
             self.light_picker.connect('value_changed', 
                     self.light_picker_cb, None)
@@ -484,6 +481,7 @@ class MainWindow(gtk.Window):
         menu_image = gtk.image_new_from_stock(gtk.STOCK_PREFERENCES, 
                         gtk.ICON_SIZE_SMALL_TOOLBAR)
         menu_image.show()
+        button.set_tooltip_text("Camera settings")
         button.connect('clicked', self.config_cb, None)
         button.add(menu_image)
         self.toolbar.pack_start(button, False, False)
@@ -493,22 +491,25 @@ class MainWindow(gtk.Window):
                 os.path.join(source_dir, 'data', 'camera_24.png'))
         photo = gtk.Button()
         photo.set_image(photo_image)
+        photo.set_tooltip_text("Take single photo")
         photo.connect('clicked', self.photo_cb, None)
         self.toolbar.pack_start(photo, False, False)
         photo.show()
 
         if self.dome_controls:
             photo = gtk.Button('Preview')
+            photo.set_tooltip_text("Take preview RTI image")
             photo.connect('clicked', self.rti_preview_cb, None)
             self.toolbar.pack_start(photo, False, False)
             photo.show()
 
             photo = gtk.Button('Capture ...')
+            photo.set_tooltip_text("Start full RTI acquisition")
             photo.connect('clicked', self.rti_capture_cb, None)
             self.toolbar.pack_start(photo, False, False)
             photo.show()
 
-        self.info.msg('Welcome to RTI Acquire', 'v1.0, May 2011')
+        self.info.msg('Welcome to RTI Acquire', 'v1.1, September 2011')
 
         self.show()
 

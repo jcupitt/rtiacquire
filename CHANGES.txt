@@ -4,3 +4,12 @@ v1.1dev, 17/5/11
     - forgot some files in the move to git
     - disable dome controls if no dome is found
     - try to enable Canon capture
+
+26/9/11
+    - tooltips everywhere
+
+27/9/11
+    - RTI capture seems reliable now
+    - does not autofocus unless asked
+    - full-res 76 frame capture takes 4m 40s
+ 

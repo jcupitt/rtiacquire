@@ -71,6 +71,12 @@ Use Notes
 
   Make quicklaunch links in the usual way for convenience etc.
 
+* Run with
+
+	RTIAcquire --debug &> log
+
+  to produce a lot of debugging output in the file "log", handy for testing.
+
 * When you plug the camera in you may get a desktop camera icon --
   right-click and select "unmount" so this program can open it.
 
@@ -103,7 +109,25 @@ http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html
 Todo
 ====
 
-* tooltips
+* even in AF-S mode, it still autofocuses during full RTI capture
+ 
+  strangely, "take single photo" does not autofocus, even though it uses the
+  same code?
+
+
+  single photo does this:
+
+    def photo_cb(self, widget, data = None):
+        live = self.preview.get_live()
+        self.set_live(False)
+        try:
+            full_filename = self.camera.capture_to_file(preview_filename())
+        except camera.Error as e:
+            self.info.err(e.message, e.detail)
+        else:
+            os.system('xdg-open "%s"' % full_filename)
+        self.set_live(live)
+
 
 * in camera.py, try ignoring the return value from gp.gp_camera_capture(), do
   we still get a sensible value for cam_path? perhaps only fail if cam_path is
