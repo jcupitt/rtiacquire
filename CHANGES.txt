@@ -14,3 +14,11 @@ v1.1dev, 17/5/11
     - full-res 76 frame capture takes 4m 40s
     - clean up exceptions a bit
  
+13/10/11
+    - experiments with manual focus, does not seem to be possible with the
+      Nikon, still investigating, but see email:
+
+      http://sourceforge.net/mailarchive/forum.php?forum_name=gphoto-user&max_rows=25&style=nested&viewmonth=201110&viewday=13
+
+    - added a 'Focus' button to trigger the camera's own autofocus, just a
+      shortcut for the control in the preferences panel

@@ -109,7 +109,7 @@ Scheme. Details are available at:
 Todo
 ====
 
-- in camera.py, try ignoring the return value from `gp.gp_camera_capture()`, do
+* in camera.py, try ignoring the return value from `gp.gp_camera_capture()`, do
   we still get a sensible value for `cam_path`? perhaps only fail if 
   `cam_path` is useless
 

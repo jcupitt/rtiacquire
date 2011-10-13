@@ -104,6 +104,13 @@ class MainWindow(gtk.Window):
                 self.config_window.connect('destroy', self.config_destroy_cb)
                 self.config_window.show()
 
+    def focus_cb(self, widget, data = None):
+        config = camera.Config(self.camera) 
+        root = config.get_root_widget()
+        focus = root.get_child_by_name('autofocusdrive')
+        focus.set_value(1)
+        config.set_config()
+
     def photo_cb(self, widget, data = None):
         live = self.preview.get_live()
         self.set_live(False)
@@ -457,6 +464,12 @@ class MainWindow(gtk.Window):
         button.set_tooltip_text("Camera settings")
         button.connect('clicked', self.config_cb, None)
         button.add(menu_image)
+        self.toolbar.pack_start(button, False, False)
+        button.show()
+
+        button = gtk.Button('Focus')
+        button.set_tooltip_text("Camera autofocus")
+        button.connect('clicked', self.focus_cb, None)
         self.toolbar.pack_start(button, False, False)
         button.show()
 
