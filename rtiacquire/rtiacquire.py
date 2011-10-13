@@ -302,6 +302,11 @@ class MainWindow(gtk.Window):
         if filename[-1] == '/':
             filename = filename[:-1]
 
+        if os.access(filename, os.W_OK):
+            self.info.err('Destination folder exists', 
+                          'Pick another name or delete %s.' % filename)
+            return
+
         for i in ['assembly-files', 'finished-files', 
                 'original-captures', 'jpeg-exports']:
             target = os.path.join(filename, i)
@@ -468,7 +473,7 @@ class MainWindow(gtk.Window):
         button.show()
 
         button = gtk.Button('Focus')
-        button.set_tooltip_text("Camera autofocus")
+        button.set_tooltip_text("Focus camera automatically")
         button.connect('clicked', self.focus_cb, None)
         self.toolbar.pack_start(button, False, False)
         button.show()
