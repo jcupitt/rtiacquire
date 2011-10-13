@@ -105,6 +105,10 @@ def gplog(level, domain, fmt, args, data):
 
     # this happens very often when the preview grab fails, hide it to stop the
     # logs going crazy
+
+    # more recent versions of libgphoto have downgraded this to a warning 
+    # anyway
+
     if domain == "ptp2/usb_getresp":
         if fmt == "request code 0x%04x getting resp error 0x%04x":
             return

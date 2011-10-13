@@ -260,8 +260,8 @@ class MainWindow(gtk.Window):
             # stops the camera locking up
             time.sleep(0.1)
 
-            # unless you preview between captures, the Nikon D3X will autofocus,
-            # AF-S mode
+            # unless you preview between captures, the Nikon D3X will 
+            # autofocus in AF-S mode
             self.camera.preview()
 
         logging.debug('capture done in %fs', time.time() - start)

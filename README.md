@@ -9,7 +9,7 @@ RTIAcquire uses the libgphoto2 library to control the camera, so you must
 have this library on your system and your camera must be supported by
 libgphoto2. They have a list of supported models here:
 
-http://www.gphoto.org/proj/libgphoto2/support.php
+	http://www.gphoto.org/proj/libgphoto2/support.php
 
 libgphoto2 does not currently work on Windows.
 
@@ -26,7 +26,7 @@ The whole thing is in Python so it should be very easy to customise.
 Screenshots
 ===========
 
-http://www.vips.ecs.soton.ac.uk/development/rti/snapshot11.jpg
+	http://www.vips.ecs.soton.ac.uk/development/rti/snapshot11.jpg
 
 The program as it starts up. The main area is a live preview running at
 about 20 fps. My laptop will go up to about 50 fps, but most cameras can't
@@ -42,7 +42,7 @@ The buttons along the bottom of the window let you control the dome and
 lighting system (if no dome is found, these do nothing), set camera controls,
 take a single photo, take an RTI preview, and do a full RTI capture.
 
-http://www.vips.ecs.soton.ac.uk/development/rti/snapshot13.jpg
+	http://www.vips.ecs.soton.ac.uk/development/rti/snapshot13.jpg
 
 The window you get if you click the camera control button. This is generated
 by interrogating the camera for the controls it supports. The screenshot is
@@ -54,7 +54,7 @@ preset, and remove a preset. Presets are remembered between sessions. A
 special preset called 'startup' records the state of the camera when the
 program was started.
 
-http://www.vips.ecs.soton.ac.uk/development/rti/snapshot8.jpg
+	http://www.vips.ecs.soton.ac.uk/development/rti/snapshot8.jpg
 
 During RTI capture. 
 
@@ -104,48 +104,21 @@ This software was funded by the UK Arts and Humanities Research Council
 Projects" under the Digital Equipment and Database Enhancement for Impact
 Scheme. Details are available at:
 
-http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html
+	http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html
 
 Todo
 ====
 
-* even in AF-S mode, it still autofocuses during full RTI capture
- 
-  strangely, "take single photo" does not autofocus, even though it uses the
-  same code?
-
-
-  single photo does this:
-
-    def photo_cb(self, widget, data = None):
-        live = self.preview.get_live()
-        self.set_live(False)
-        try:
-            full_filename = self.camera.capture_to_file(preview_filename())
-        except camera.Error as e:
-            self.info.err(e.message, e.detail)
-        else:
-            os.system('xdg-open "%s"' % full_filename)
-        self.set_live(live)
-
-
-* in camera.py, try ignoring the return value from gp.gp_camera_capture(), do
-  we still get a sensible value for cam_path? perhaps only fail if cam_path is
-  useless
+- in camera.py, try ignoring the return value from `gp.gp_camera_capture()`, do
+  we still get a sensible value for `cam_path`? perhaps only fail if 
+  `cam_path` is useless
 
   if this works, we might be able to get rid of the preview() at the beginning 
-  of capture_to_file()
+  of `capture_to_file()`
 
 * break main out into a separate program
 
-* name private members with a leading _?
-
-* test reliability
-
-* test no refocus during acquire, document exact camera mode to stop this
-
-	can we drive focus somehow? could mark a feature on the preview and
-	focus on that
+* name private members with a leading `_`?
 
 Major new features
 ==================
@@ -178,4 +151,12 @@ wontfix
   auto-expose
 
 	nope, doesn't seem to be possible
+
+* can we drive the camera focus ourselves
+
+	nope, doesn't seem to be possible, see:
+
+	http://sourceforge.net/mailarchive/forum.php?thread_name=CAGNS0RsnFcCOBhYtfRwcnb5Av5Y%2BkkQAjTN%3DgKvp2HWhkpSdLw%40mail.gmail.com&forum_name=gphoto-user
+
+	but I'll watch for replies just in case
 
