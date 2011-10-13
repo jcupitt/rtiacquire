@@ -22,3 +22,4 @@ v1.1dev, 17/5/11
 
     - added a 'Focus' button to trigger the camera's own autofocus, just a
       shortcut for the control in the preferences panel
+    - lights hop automatically after 10s of inactivity (was 30s)

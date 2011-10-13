@@ -120,6 +120,8 @@ Todo
 
 * name private members with a leading `_`?
 
+* prompt before overwriting in RTI capture
+
 Major new features
 ==================
 
