@@ -13,15 +13,28 @@ libgphoto2. They have a list of supported models here:
 
 libgphoto2 does not currently work on Windows.
 
-RTIAcquire uses IJG libjpeg to decompress preview frames. You must have
-the headers for this library available: jpeglib.h and jerror.h.
-
 It can also control a lighting system for doing Reflectance Transform Imaging,
 though you'll need to customise it for your exact dome and lighting hardware.
 If you don't have a dome and lighting system, you can just use the program to
 take pictures.
 
 The whole thing is in Python so it should be very easy to customise.
+
+Prerequistites
+==============
+
+libgphoto2 does not work on Windows, so you need a unix-like system of some
+sort. We've used several Linuxes but OS X should work too. On Debian-family
+systems this package is called libgphoto2-2.
+
+RTIAcquire uses IJG libjpeg to decompress preview frames. You must have
+the headers for this library available: jpeglib.h and jerror.h. On
+Debian-family systems this package is called libjpeg-dev. 
+
+The GUI is done in gtk2, so you need the python-gtk2 package. 
+
+RTIAcquire communicates with the lighting system over USB using python-serial.
+YOu need to have this package installed too. 
 
 Screenshots
 ===========
@@ -80,8 +93,8 @@ Use Notes
 * When you plug the camera in you may get a desktop camera icon --
   right-click and select "unmount" so this program can open it.
 
-* Interrupting the program or unplugging the camera during an operation, 
-  for example, while the view preview is showing, may leave the camera in a
+* Interrupting the program or unplugging the camera during an operation
+  while the view preview is showing may leave the camera in a
   strange state and make it unresponsive. Unplug, turn the camera off and on
   again, and reconnect. Sometimes even that doesn't work, argh. Try pulling out
   the camera power cord if desperate.
@@ -89,9 +102,9 @@ Use Notes
 * Holding down the two green dot buttons on the lower back of the camera for 
   two seconds resets the camera to a sane state.
 
-* With the Nikon, put the lens into AF-S mode (the control on the front of the
-  camera body, to the right of the lens as you face it). This will let you
-  autofocus using the program controls, but not refocus before each shot.
+* With the Nikon D3X, put the lens into AF-S mode (the control on the front of 
+  the camera body, to the right of the lens as you face it). This will let
+  you autofocus using the program controls, but not refocus before each shot.
 
 * In image preview, click Edit / Preferences and turn off image smoothing
   (smoothing makes checking focus difficult).
@@ -129,8 +142,8 @@ Major new features
 
 * see the OS X bundler, investigate prebuilt pygtk on OS X packages
 
-* Phil wrote a tiny gui wrapper for doing the fitting - so an extra Build button
-could be added to yours which runs his script (as the path is needed)
+* Phil wrote a tiny gui wrapper for doing the fitting - so an extra Build 
+  button could be added to yours which runs his script (as the path is needed)
 
 	fitter notes here
 
