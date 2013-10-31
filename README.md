@@ -7,9 +7,7 @@ live preview window and a full set of manual controls.
 
 RTIAcquire uses the libgphoto2 library to control the camera, so you must
 have this library on your system and your camera must be supported by
-libgphoto2. They have a list of supported models here:
-
-	http://www.gphoto.org/proj/libgphoto2/support.php
+libgphoto2. They have a list of [supported models](http://www.gphoto.org/proj/libgphoto2/support.php).
 
 libgphoto2 does not currently work on Windows.
 
@@ -39,7 +37,7 @@ YOu need to have this package installed too.
 Screenshots
 ===========
 
-	http://www.vips.ecs.soton.ac.uk/development/rti/snapshot11.jpg
+![screenshot](http://www.vips.ecs.soton.ac.uk/development/rti/snapshot11.jpg)
 
 The program as it starts up. The main area is a live preview running at
 about 20 fps. My laptop will go up to about 50 fps, but most cameras can't
@@ -55,7 +53,7 @@ The buttons along the bottom of the window let you control the dome and
 lighting system (if no dome is found, these do nothing), set camera controls,
 take a single photo, take an RTI preview, and do a full RTI capture.
 
-	http://www.vips.ecs.soton.ac.uk/development/rti/snapshot13.jpg
+![screenshot](http://www.vips.ecs.soton.ac.uk/development/rti/snapshot13.jpg)
 
 The window you get if you click the camera control button. This is generated
 by interrogating the camera for the controls it supports. The screenshot is
@@ -67,7 +65,7 @@ preset, and remove a preset. Presets are remembered between sessions. A
 special preset called 'startup' records the state of the camera when the
 program was started.
 
-	http://www.vips.ecs.soton.ac.uk/development/rti/snapshot8.jpg
+![screenshot](http://www.vips.ecs.soton.ac.uk/development/rti/snapshot8.jpg)
 
 During RTI capture. 
 
@@ -76,17 +74,23 @@ Use Notes
 
 * Install with something like:
 
-	python setup.py install --prefix=/my/install/prefix
+```bash
+$ python setup.py install --prefix=/my/install/prefix
+```
 
   And run with
 
-  	RTIAcquire
+```bash
+$ RTIAcquire
+```
 
   Make quicklaunch links in the usual way for convenience etc.
 
 * Run with
 
-	RTIAcquire --debug &> log
+```bash
+RTIAcquire --debug &> log
+```
 
   to produce a lot of debugging output in the file "log", handy for testing.
 
@@ -115,9 +119,7 @@ Credits
 This software was funded by the UK Arts and Humanities Research Council
 "Reflectance Transformation Imaging System for Ancient Document Artefacts
 Projects" under the Digital Equipment and Database Enhancement for Impact
-Scheme. Details are available at:
-
-	http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html
+Scheme. [Details are available.](http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html)
 
 Todo
 ====
