@@ -90,7 +90,7 @@ GPLogLevel = {GP_LOG_ERROR: "error",
 
 # Load library
 if sys.platform == "linux2":
-    gp = ctypes.CDLL('libgphoto2.dylib')
+    gp = ctypes.CDLL('libgphoto2.so.6')
 elif sys.platform == "darwin":
     gp = ctypes.CDLL('libgphoto2.dylib')
 else:
