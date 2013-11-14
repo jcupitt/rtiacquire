@@ -35,24 +35,23 @@ class Error(Exception):
 
 
 def scanserial():
-        """scan for available ports. return a list of device names."""
-        baselist = []
-        if os.name == "nt":
-            try:
-                key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM")
-                i = 0
-                while(1):
-                    baselist += [_winreg.EnumValue(key, i)[1]]
-                    i += 1
-            except:
-                pass
+    """scan for available ports. return a list of device names."""
+    baselist = []
+    if os.name == "nt":
+        try:
+            key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM")
+            i = 0
+            while(1):
+                baselist += [_winreg.EnumValue(key, i)[1]]
+                i += 1
+        except:
+            pass
 
-        for g in ['/dev/ttyUSB*', '/dev/ttyACM*', "/dev/tty.*", "/dev/cu.*", "/dev/rfcomm*"]:
-            baselist += glob.glob(g)
-        return filter(_bluetoothSerialFilter, baselist)
+    for g in ['/dev/ttyUSB*', '/dev/ttyACM*', "/dev/tty.*", "/dev/cu.*", "/dev/rfcomm*"]:
+        baselist += [x for x in glob.glob(g) 
+                     if not "Bluetooth" in x and not "FireFly" in x]
 
-def _bluetoothSerialFilter(serial):
-    return not ("Bluetooth" in serial or "FireFly" in serial)
+    return baselist
 
 light_ports = scanserial()
 

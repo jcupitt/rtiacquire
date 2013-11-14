@@ -14,6 +14,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 import logging
 import os
+import sys
 import re
 import ctypes
 
@@ -88,8 +89,12 @@ GPLogLevel = {GP_LOG_ERROR: "error",
                 GP_LOG_DATA: "data"}
 
 # Load library
-gp = ctypes.CDLL('libgphoto2.dylib')
-# libc = ctypes.CDLL("libc.so.6")
+if sys.platform == "linux2":
+    gp = ctypes.CDLL('libgphoto2.dylib')
+elif sys.platform == "darwin":
+    gp = ctypes.CDLL('libgphoto2.dylib')
+else:
+    logging.error("unsupported platform")
 
 # gphoto2 log function
 #   void log(GPLogLevel level, const char *domain, 
