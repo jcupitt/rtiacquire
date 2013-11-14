@@ -10,6 +10,7 @@ Created as part of the AHRC RTI project in 2011
 GNU LESSER GENERAL PUBLIC LICENSE
 """
 
+import glob
 import os
 import serial
 import time
@@ -32,13 +33,28 @@ class Error(Exception):
     def __str__(self):
         return '%s - %s' %(self.message, self.detail)
 
-# where we look for the light controller, in order
-#   /dev/ttyUSB0    
-#       when you plug the light controller in on Ubuntu, this dev
-#       appears ... normally it's USB0 but I guess if the machine has other
-#       generic USB devices, it could appear as higher numbers
 
-light_ports = ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2']
+def scanserial():
+        """scan for available ports. return a list of device names."""
+        baselist = []
+        if os.name == "nt":
+            try:
+                key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM")
+                i = 0
+                while(1):
+                    baselist += [_winreg.EnumValue(key, i)[1]]
+                    i += 1
+            except:
+                pass
+
+        for g in ['/dev/ttyUSB*', '/dev/ttyACM*', "/dev/tty.*", "/dev/cu.*", "/dev/rfcomm*"]:
+            baselist += glob.glob(g)
+        return filter(_bluetoothSerialFilter, baselist)
+
+def _bluetoothSerialFilter(serial):
+    return not ("Bluetooth" in serial or "FireFly" in serial)
+
+light_ports = scanserial()
 
 class Lights:
     def __init__(self):

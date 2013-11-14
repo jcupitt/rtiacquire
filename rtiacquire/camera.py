@@ -88,7 +88,7 @@ GPLogLevel = {GP_LOG_ERROR: "error",
                 GP_LOG_DATA: "data"}
 
 # Load library
-gp = ctypes.CDLL('libgphoto2.so.2')
+gp = ctypes.CDLL('libgphoto2.dylib')
 # libc = ctypes.CDLL("libc.so.6")
 
 # gphoto2 log function
@@ -128,7 +128,9 @@ def gplog(level, domain, fmt, args, data):
         last_detail = 'Non-specific error'
 gplog_func = LOGFUNC(gplog)
 
-context = gp.gp_context_new()
+gp.gp_context_new.restype = ctypes.c_void_p
+context = ctypes.c_void_p(gp.gp_context_new())
+
 gp.gp_log_add_func(GP_LOG_ERROR, gplog_func, None)
 
 class Camera:

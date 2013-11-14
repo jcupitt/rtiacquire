@@ -500,7 +500,7 @@ class MainWindow(gtk.Window):
             self.toolbar.pack_start(photo, False, False)
             photo.show()
 
-        self.info.msg('Welcome to RTI Acquire', 'v1.1, September 2011')
+        self.info.msg('Welcome to RTI Acquire', 'v1.2, November 2013')
 
         self.show()
 
