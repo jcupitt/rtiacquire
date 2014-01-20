@@ -74,6 +74,7 @@ class Lights:
             raise Error('Unable to connect to lights', str(e))
 
         time.sleep(1)
+        port.flushInput()
         port.write('?')
         resp = port.readline()
         if resp != 'USB I/O 24R1\r\n':
