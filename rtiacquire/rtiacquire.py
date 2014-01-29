@@ -42,7 +42,7 @@ source_dir = os.path.dirname(__file__)
 preview_timeout = 5000
 
 # hop the lights after this many ms of no light actions -- prevents burnout
-lights_timeout = 10000
+lights_timeout = 3500
 
 # the width of the camera preview
 # the Nikon has a 640 x 426 preview, I don't know what other cameras have,
