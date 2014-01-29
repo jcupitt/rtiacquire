@@ -392,9 +392,11 @@ class MainWindow(gtk.Window):
         self.preview.show()
 
         if options.verbose:
-            config = camera.Config(self.camera) 
-            config.prettyprint(sys.stdout, config.get_root_widget())
-
+            try:
+                config = camera.Config(self.camera) 
+                config.prettyprint(sys.stdout, config.get_root_widget())
+            except:
+                logging.debug("No Camera detected: unable to print config")
         eb = gtk.EventBox()
         fixed.put(eb, 0, 0)
         eb.show()
