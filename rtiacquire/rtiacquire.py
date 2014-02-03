@@ -266,13 +266,14 @@ class MainWindow(gtk.Window):
             self.set_lights(i)
 
             self.camera.capture_to_file(os.path.join(self.target, '%d' % i))
-
+            
             # stops the camera locking up
             time.sleep(0.1)
-
+            
             # unless you preview between captures, the Nikon D3X will 
             # autofocus in AF-S mode
-            self.camera.preview()
+            #self.camera.preview()
+            # removed to fix issue with d800 needs testing with D3
 
         logging.debug('capture done in %fs', time.time() - start)
 
@@ -533,8 +534,7 @@ def main():
     options, args = parser.parse_args()
 
     if options.verbose:
-        logging.basicConfig(level = logging.DEBUG)
-
+        logging.basicConfig(level = logging.DEBUG,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
     if not os.access(options.tempdir, os.W_OK):
         logging.error('tempdir %s not writeable, defaulting to /tmp',
                         options.tempdir)
