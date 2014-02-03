@@ -227,10 +227,15 @@ class Camera:
 
         logging.debug('** camera capture')
         cam_path = CameraFilePath()
+        logging.debug("after path")
         retval = gp.gp_camera_capture(self.camera, 
                         GP_CAPTURE_IMAGE, ctypes.byref(cam_path), context)
+
         if retval != GP_OK:
             raise Error('Unable to capture')
+        else:
+            logging.debug("Capture OK")
+
         logging.debug('name = "%s"', cam_path.name)
         logging.debug('folder = "%s"', cam_path.folder)
 
@@ -250,16 +255,23 @@ class Camera:
         retval = gp.gp_camera_file_get(self.camera, 
                         cam_path.folder, cam_path.name, GP_FILE_TYPE_NORMAL, 
                         cam_file, context)
+
         if retval != GP_OK:
             gp.gp_file_unref(cam_file)
             raise Error('Unable to download')
-        
+        else:
+            logging.debug("Download complete")        
+
         logging.debug('** camera delete')
         retval = gp.gp_camera_file_delete(self.camera, 
                         cam_path.folder, cam_path.name, context)
         if retval != GP_OK:
             logging.error('delete error')
+        else:
+            logging.debug("delete complete")
         gp.gp_file_unref(cam_file)
+
+        self.release()
 
         return full_filename
 
