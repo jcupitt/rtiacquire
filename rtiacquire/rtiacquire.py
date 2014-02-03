@@ -119,7 +119,10 @@ class MainWindow(gtk.Window):
         except camera.Error as e:
             self.info.err(e.message, e.detail)
         else:
-            os.system('xdg-open "%s"' % full_filename)
+            if sys.platform == "darwin":
+                os.system('open "%s"' % full_filename)
+            else:
+                os.system('xdg-open "%s"' % full_filename)
         self.set_live(live)
 
     def get_lights(self):
