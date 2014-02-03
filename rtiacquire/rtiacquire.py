@@ -218,7 +218,7 @@ class MainWindow(gtk.Window):
 
             self.camera.preview_to_file(os.path.join(options.tempdir, 
                 'rti_preview_%d.jpg' % i))
-
+	self.camera.release()
         return True
 
     def rti_preview_ptm(self):
