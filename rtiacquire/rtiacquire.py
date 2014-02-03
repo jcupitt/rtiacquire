@@ -85,6 +85,7 @@ class MainWindow(gtk.Window):
             self.live.set_image(self.play_image)
 
         self.preview.set_live(live)
+        self.camera.release()
 
     def live_cb(self, widget, data = None):
         self.set_live(not self.preview.get_live())
@@ -123,6 +124,7 @@ class MainWindow(gtk.Window):
                 os.system('open "%s"' % full_filename)
             else:
                 os.system('xdg-open "%s"' % full_filename)
+        self.camera.release()
         self.set_live(live)
 
     def get_lights(self):
