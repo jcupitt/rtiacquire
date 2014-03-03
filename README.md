@@ -9,14 +9,15 @@ RTIAcquire uses the libgphoto2 library to control the camera, so you must
 have this library on your system and your camera must be supported by
 libgphoto2. They have a list of [supported models](http://www.gphoto.org/proj/libgphoto2/support.php).
 
-libgphoto2 does not currently work on Windows.
+libgphoto2 does not currently work on Windows without some tinkering. 
 
 It can also control a lighting system for doing Reflectance Transform Imaging,
 though you'll need to customise it for your exact dome and lighting hardware.
 If you don't have a dome and lighting system, you can just use the program to
 take pictures.
 
-The whole thing is in Python so it should be very easy to customise.
+The whole thing is in Python so it should be very easy to customise. There are
+about 600 lines of C for the live preview. 
 
 Prerequistites
 ==============
@@ -32,7 +33,7 @@ Debian-family systems this package is called libjpeg-dev.
 The GUI is done in gtk2, so you need the python-gtk2 package. 
 
 RTIAcquire communicates with the lighting system over USB using python-serial.
-YOu need to have this package installed too. 
+You need to have this package installed too. 
 
 Screenshots
 ===========
@@ -50,8 +51,9 @@ to stop frame grabbing.
 The camera is autodetected on startup. 
 
 The buttons along the bottom of the window let you control the dome and
-lighting system (if no dome is found, these do nothing), set camera controls,
-take a single photo, take an RTI preview, and do a full RTI capture.
+lighting system, set camera controls, take a single photo, take an RTI 
+preview, and do a full RTI capture. If no dome is found on startup, the 
+lighting controls and the RTI controls do not appear. 
 
 ![screenshot](http://www.vips.ecs.soton.ac.uk/development/rti/snapshot13.jpg)
 
@@ -59,11 +61,11 @@ The window you get if you click the camera control button. This is generated
 by interrogating the camera for the controls it supports. The screenshot is
 for a Nikon D3X.
 
-The controls along the bottom let you refresh the GUI from the camera (if you
-change one of the camera controls yourself), switch between presets, add a
-preset, and remove a preset. Presets are remembered between sessions. A
-special preset called 'startup' records the state of the camera when the
-program was started.
+The controls along the bottom let you refresh the GUI from the camera (in case 
+you change one of the camera controls on the camera body), switch between 
+presets, add a preset, and remove a preset. Presets are remembered between 
+sessions. A special preset called 'startup' records the state of the camera 
+when the program was started.
 
 ![screenshot](http://www.vips.ecs.soton.ac.uk/development/rti/snapshot8.jpg)
 
@@ -89,7 +91,7 @@ $ RTIAcquire
 * Run with
 
 ```bash
-RTIAcquire --debug &> log
+$ RTIAcquire --debug &> log
 ```
 
   to produce a lot of debugging output in the file "log", handy for testing.
@@ -120,6 +122,16 @@ This software was funded by the UK Arts and Humanities Research Council
 "Reflectance Transformation Imaging System for Ancient Document Artefacts
 Projects" under the Digital Equipment and Database Enhancement for Impact
 Scheme. [Details are available.](http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html)
+
+
+Current hacking
+===============
+
+* move select code to preview
+
+* what's the best way to hook into Preview expose
+
+
 
 Todo
 ====

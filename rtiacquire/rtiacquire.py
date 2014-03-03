@@ -50,6 +50,11 @@ lights_timeout = 10000
 # hardwire this for now
 preview_width = 640
 
+# we have a small state machine for manipulating the select box
+def enum(**enums):
+    return type('Enum', (), enums)
+SelectStates = enum(SELECT_WAIT = 1, SELECT_DRAG = 2, SELECT_RESIZE = 3)
+
 def preview_filename():
     return os.path.join(options.tempdir, 'preview_test')
 
@@ -349,6 +354,12 @@ class MainWindow(gtk.Window):
         self.live_hide_timeout = 0
         self.light_hop_timeout = 0
         self.busy = False
+        self.select_visible = False
+        self.select_left = 0
+        self.select_top = 0
+        self.select_width = 0
+        self.select_height = 0
+        self.select_state = 0
 
         self.leds = ledmap.Ledmap(os.path.join(source_dir, 'data', 
                                                'led-maps.txt'))
