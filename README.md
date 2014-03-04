@@ -123,16 +123,6 @@ This software was funded by the UK Arts and Humanities Research Council
 Projects" under the Digital Equipment and Database Enhancement for Impact
 Scheme. [Details are available.](http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html)
 
-
-Current hacking
-===============
-
-* move select code to preview
-
-* what's the best way to hook into Preview expose
-
-
-
 Todo
 ====
 

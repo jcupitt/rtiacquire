@@ -23,7 +23,7 @@ import rect
 frame_timeout = 50
 
 # width of selection box border
-select_width = 3
+select_width = 2
 
 # size of corner resize boxes
 select_corner = 15
@@ -60,81 +60,105 @@ class Preview(gtk.EventBox):
     set_live -- turn the live preview on and off
     """
 
+    def draw_rect(self, gc, rect, margin):
+        window = self.image.get_window()
+
+        window.draw_rectangle(gc, True,
+                              rect.left - margin, 
+                              rect.top - margin, 
+                              rect.width + margin * 2, 
+                              margin * 2)
+        window.draw_rectangle(gc, True,
+                              rect.right() - margin, 
+                              rect.top + margin, 
+                              margin * 2,
+                              max(0, rect.height - margin * 2))
+        window.draw_rectangle(gc, True,
+                              rect.left - margin, 
+                              rect.bottom() - margin, 
+                              rect.width + margin * 2, 
+                              margin * 2)
+        window.draw_rectangle(gc, True,
+                              rect.left - margin, 
+                              rect.top + margin, 
+                              margin * 2,
+                              max(0, rect.height - margin * 2))
+
     # expose on our gtk.Image
     def expose_event(self, widget, event):
         window = self.image.get_window()
 
         if not self.gc:
-            self.gc = gtk.gdk.Drawable.new_gc(window,
-                                              gtk.gdk.Color("white"),
-                                              gtk.gdk.Color("black"),
-                                              None,            # font
-                                              gtk.gdk.COPY,
-                                              gtk.gdk.SOLID,
-                                              None,            # tile
-                                              None,            # stipple
-                                              None,            # clip
-                                              gtk.gdk.INCLUDE_INFERIORS,
-                                              0, 0,
-                                              0, 0,
-                                              False,
-                                              0,               # 1 pixel width
-                                              gtk.gdk.LINE_SOLID,
-                                              gtk.gdk.CAP_NOT_LAST,
-                                              gtk.gdk.JOIN_MITER) 
+            self.white_gc = gtk.gdk.Drawable.new_gc(window,
+                                                    gtk.gdk.Color("white"),
+                                                    gtk.gdk.Color("black"),
+                                                    None,           
+                                                    gtk.gdk.COPY,
+                                                    gtk.gdk.SOLID,
+                                                    None,          
+                                                    None,         
+                                                    None,        
+                                                    gtk.gdk.INCLUDE_INFERIORS,
+                                                    0, 0,
+                                                    0, 0,
+                                                    False,
+                                                    0,          
+                                                    gtk.gdk.LINE_SOLID,
+                                                    gtk.gdk.CAP_NOT_LAST,
+                                                    gtk.gdk.JOIN_MITER) 
+            self.black_gc = gtk.gdk.Drawable.new_gc(window,
+                                                    gtk.gdk.Color("black"),
+                                                    gtk.gdk.Color("white"),
+                                                    None,           
+                                                    gtk.gdk.COPY,
+                                                    gtk.gdk.SOLID,
+                                                    None,          
+                                                    None,         
+                                                    None,        
+                                                    gtk.gdk.INCLUDE_INFERIORS,
+                                                    0, 0,
+                                                    0, 0,
+                                                    False,
+                                                    0,          
+                                                    gtk.gdk.LINE_SOLID,
+                                                    gtk.gdk.CAP_NOT_LAST,
+                                                    gtk.gdk.JOIN_MITER) 
 
         if self.visible:
-            window.draw_rectangle(self.gc, True,
-                                  self.area.left - select_width, 
-                                  self.area.top - select_width, 
-                                  self.area.width + select_width * 2, 
-                                  select_width)
-            window.draw_rectangle(self.gc, True,
-                                  self.area.right(), 
-                                  self.area.top, 
-                                  select_width,
-                                  self.area.height) 
-            window.draw_rectangle(self.gc, True,
-                                  self.area.left - select_width, 
-                                  self.area.bottom(), 
-                                  self.area.width + select_width * 2, 
-                                  select_width)
-            window.draw_rectangle(self.gc, True,
-                                  self.area.left - select_width, 
-                                  self.area.top, 
-                                  select_width,
-                                  self.area.height)
+            self.draw_rect(self.black_gc, self.area, select_width)
+            self.draw_rect(self.white_gc, self.area, select_width - 1)
 
         return False
 
     def button_press_event(self, widget, event):
         x = int(event.x)
         y = int(event.y)
-        outer = self.area.clone()
-        outer.margin_adjust(select_width * 2)
+        direction = self.area.which_corner(select_corner, x, y)
 
         if self.select_state == SelectState.WAIT and \
+            self.visible and \
+            direction != rect.Edge.NONE:
+            self.select_state = SelectState.RESIZE
+            self.resize_direction = direction
+            corner = self.area.corner(direction)
+            (cx, cy) = corner.centre()
+            self.drag_x = x - cx
+            self.drag_y = y - cy
+            self.queue_draw()
+
+        elif self.select_state == SelectState.WAIT and \
             self.visible and \
             self.area.includes_point(x, y):
             self.select_state = SelectState.DRAG
             self.drag_x = x - self.area.left
             self.drag_y = y - self.area.top
             self.queue_draw()
-        elif self.select_state == SelectState.WAIT and \
-            self.visible and \
-            not self.area.includes_point(x, y) and \
-            outer.includes_point(x, y):
-            self.select_state = SelectState.RESIZE
-            self.resize_direction = self.area.which_corner(select_corner, x, y)
-            corner = self.area.corner(self.resize_direction)
-            (cx, cy) = corner.centre()
-            self.drag_x = x - cx
-            self.drag_y = y - cy
-            self.queue_draw()
+
         elif self.select_state == SelectState.WAIT and \
             self.visible:
             self.visible = False
             self.queue_draw()
+
         elif self.select_state == SelectState.WAIT and \
             not self.visible:
             self.visible = True
@@ -192,16 +216,16 @@ class Preview(gtk.EventBox):
 
         elif self.select_state == SelectState.WAIT:
             window = self.image.get_window()
-            outer = self.area.clone()
-            outer.margin_adjust(select_width * 2)
+            direction = self.area.which_corner(select_corner, x, y)
+
             if self.visible and \
+                direction != rect.Edge.NONE:
+                window.set_cursor(resize_cursor_shape[direction])
+
+            elif self.visible and \
                 self.area.includes_point(x, y):
                 window.set_cursor(drag_cursor_shape)
-            elif self.visible and \
-                not self.area.includes_point(x, y) and \
-                outer.includes_point(x, y):
-                edge = self.area.which_corner(select_corner, x, y)
-                window.set_cursor(resize_cursor_shape[edge])
+
             else:
                 window.set_cursor(None)
 
@@ -243,7 +267,7 @@ class Preview(gtk.EventBox):
 
         self.gc = None
 
-        self.visible = True
+        self.visible = False
         self.area = rect.Rect(10, 10, 100, 100)
         self.select_state = SelectState.WAIT
         self.resize_direction = rect.Edge.N

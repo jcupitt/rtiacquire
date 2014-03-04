@@ -112,3 +112,5 @@ class Rect:
             corner.margin_adjust(corner_size)
             if corner.includes_point(x, y):
                 return edge
+
+        return Edge.NONE
