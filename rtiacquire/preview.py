@@ -48,6 +48,10 @@ resize_cursor_shape = {
 # another cursor for grag
 drag_cursor_shape = gtk.gdk.Cursor(gtk.gdk.FLEUR)
 
+# clip a number to a range
+def clip(lower, value, upper):
+    return max(min(value, upper), lower)
+
 class Preview(gtk.EventBox):
 
     """A widget displaying a live preview.
@@ -62,44 +66,44 @@ class Preview(gtk.EventBox):
 
         if not self.gc:
             self.gc = gtk.gdk.Drawable.new_gc(window,
-                                               gtk.gdk.Color("white"),
-                                               gtk.gdk.Color("black"),
-                                               None,            # font
-                                               gtk.gdk.COPY,
-                                               gtk.gdk.SOLID,
-                                               None,            # tile
-                                               None,            # stipple
-                                               None,            # clip
-                                               gtk.gdk.INCLUDE_INFERIORS,
-                                               0, 0,
-                                               0, 0,
-                                               False,
-                                               0,               # 1 pixel width
-                                               gtk.gdk.LINE_SOLID,
-                                               gtk.gdk.CAP_NOT_LAST,
-                                               gtk.gdk.JOIN_MITER) 
+                                              gtk.gdk.Color("white"),
+                                              gtk.gdk.Color("black"),
+                                              None,            # font
+                                              gtk.gdk.COPY,
+                                              gtk.gdk.SOLID,
+                                              None,            # tile
+                                              None,            # stipple
+                                              None,            # clip
+                                              gtk.gdk.INCLUDE_INFERIORS,
+                                              0, 0,
+                                              0, 0,
+                                              False,
+                                              0,               # 1 pixel width
+                                              gtk.gdk.LINE_SOLID,
+                                              gtk.gdk.CAP_NOT_LAST,
+                                              gtk.gdk.JOIN_MITER) 
 
         if self.visible:
             window.draw_rectangle(self.gc, True,
-                                   self.area.left - select_width, 
-                                   self.area.top - select_width, 
-                                   self.area.width + select_width * 2, 
-                                   select_width)
+                                  self.area.left - select_width, 
+                                  self.area.top - select_width, 
+                                  self.area.width + select_width * 2, 
+                                  select_width)
             window.draw_rectangle(self.gc, True,
-                                   self.area.right(), 
-                                   self.area.top, 
-                                   select_width,
-                                   self.area.height) 
+                                  self.area.right(), 
+                                  self.area.top, 
+                                  select_width,
+                                  self.area.height) 
             window.draw_rectangle(self.gc, True,
-                                   self.area.left - select_width, 
-                                   self.area.bottom(), 
-                                   self.area.width + select_width * 2, 
-                                   select_width)
+                                  self.area.left - select_width, 
+                                  self.area.bottom(), 
+                                  self.area.width + select_width * 2, 
+                                  select_width)
             window.draw_rectangle(self.gc, True,
-                                   self.area.left - select_width, 
-                                   self.area.top, 
-                                   select_width,
-                                   self.area.height)
+                                  self.area.left - select_width, 
+                                  self.area.top, 
+                                  select_width,
+                                  self.area.height)
 
         return False
 
@@ -147,15 +151,18 @@ class Preview(gtk.EventBox):
     def motion_notify_event(self, widget, event):
         x = int(event.x)
         y = int(event.y)
+        image_width = self.image.get_allocation().width
+        image_height = self.image.get_allocation().height
 
         if self.select_state == SelectState.DRAG:
-            self.area.left = x - self.drag_x
-            self.area.top = y - self.drag_y
+            self.area.left = clip(0, 
+                                  x - self.drag_x, 
+                                  image_width - self.area.width)
+            self.area.top = clip(0,
+                                  y - self.drag_y,
+                                  image_height - self.area.height)
             self.queue_draw()
         elif self.select_state == SelectState.RESIZE:
-            corner = self.area.corner(self.resize_direction)
-            (cx, cy) = corner.centre()
-
             if self.resize_direction in [rect.Edge.SE, rect.Edge.E,
                                          rect.Edge.NE]:
                 right = x - self.drag_x
@@ -177,10 +184,13 @@ class Preview(gtk.EventBox):
                 top = y - self.drag_y
                 self.area.height = self.area.bottom() - top
                 self.area.top = top
-
+            
             self.area.normalise()
+            image = rect.Rect(0, 0, image_width, image_height)
+            self.area = self.area.intersection(image)
             self.queue_draw()
-        else:
+
+        elif self.select_state == SelectState.WAIT:
             window = self.image.get_window()
             outer = self.area.clone()
             outer.margin_adjust(select_width * 2)
@@ -237,6 +247,8 @@ class Preview(gtk.EventBox):
         self.area = rect.Rect(10, 10, 100, 100)
         self.select_state = SelectState.WAIT
         self.resize_direction = rect.Edge.N
+        self.drag_x = 0
+        self.drag_y = 0
 
         self.image.connect_after('expose-event', self.expose_event)
 

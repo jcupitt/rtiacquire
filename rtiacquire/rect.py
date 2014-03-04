@@ -17,6 +17,10 @@ class Rect:
         self.width = int(width)
         self.height = int(height)
 
+    def __str__(self):
+        return "<Rect: left = %d, top = %d, width = %d, height = %d>" % \
+            (self.left, self.top, self.width, self.height)
+
     def clone(self):
         return Rect(self.left, self.top, self.width, self.height)
 
