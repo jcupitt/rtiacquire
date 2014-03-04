@@ -33,6 +33,21 @@ def enum(**enums):
     return type('Enum', (), enums)
 SelectState = enum(WAIT = 1, DRAG = 2, RESIZE = 3)
 
+# For each edge direction, the corresponding cursor we select
+resize_cursor_shape = {
+    rect.Edge.NW:   gtk.gdk.Cursor(gtk.gdk.TOP_LEFT_CORNER),
+    rect.Edge.NE:   gtk.gdk.Cursor(gtk.gdk.TOP_RIGHT_CORNER),
+    rect.Edge.SW:   gtk.gdk.Cursor(gtk.gdk.BOTTOM_LEFT_CORNER),
+    rect.Edge.SE:   gtk.gdk.Cursor(gtk.gdk.BOTTOM_RIGHT_CORNER),
+    rect.Edge.N:    gtk.gdk.Cursor(gtk.gdk.TOP_SIDE),
+    rect.Edge.S:    gtk.gdk.Cursor(gtk.gdk.BOTTOM_SIDE),
+    rect.Edge.E:    gtk.gdk.Cursor(gtk.gdk.RIGHT_SIDE),
+    rect.Edge.W:    gtk.gdk.Cursor(gtk.gdk.LEFT_SIDE)
+}
+
+# another cursor for grag
+drag_cursor_shape = gtk.gdk.Cursor(gtk.gdk.FLEUR)
+
 class Preview(gtk.EventBox):
 
     """A widget displaying a live preview.
@@ -137,7 +152,7 @@ class Preview(gtk.EventBox):
             self.area.left = x - self.drag_x
             self.area.top = y - self.drag_y
             self.queue_draw()
-        if self.select_state == SelectState.RESIZE:
+        elif self.select_state == SelectState.RESIZE:
             corner = self.area.corner(self.resize_direction)
             (cx, cy) = corner.centre()
 
@@ -165,6 +180,20 @@ class Preview(gtk.EventBox):
 
             self.area.normalise()
             self.queue_draw()
+        else:
+            window = self.image.get_window()
+            outer = self.area.clone()
+            outer.margin_adjust(select_width * 2)
+            if self.visible and \
+                self.area.includes_point(x, y):
+                window.set_cursor(drag_cursor_shape)
+            elif self.visible and \
+                not self.area.includes_point(x, y) and \
+                outer.includes_point(x, y):
+                edge = self.area.which_corner(select_corner, x, y)
+                window.set_cursor(resize_cursor_shape[edge])
+            else:
+                window.set_cursor(None)
 
     def button_release_event(self, widget, event):
         if self.select_state == SelectState.DRAG:
