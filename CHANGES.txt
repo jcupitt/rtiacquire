@@ -24,3 +24,10 @@ v1.1dev, 17/5/11
       shortcut for the control in the preferences panel
     - lights hop automatically after 10s of inactivity (was 30s)
     - don't overwrite on capture
+
+20/1/14
+    - fixes for latest dome
+    - fixes to help OS X
+
+v1.3, 5/3/14
+    - added a selection box to the preview widget

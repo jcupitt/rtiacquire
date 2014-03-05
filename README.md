@@ -126,6 +126,11 @@ Scheme. [Details are available.](http://www.southampton.ac.uk/archaeology/acrg/A
 Todo
 ====
 
+* stop mousewheel changing combo boxes
+
+	managed this in nip2: intercept events in combo menu, block 
+	scrollwheel
+
 * in camera.py, try ignoring the return value from `gp.gp_camera_capture()`, do
   we still get a sensible value for `cam_path`? perhaps only fail if 
   `cam_path` is useless
@@ -159,10 +164,6 @@ Major new features
 
 wontfix
 =======
-
-* stop mousewheel changing combo boxes
-
-	not possible to fix, sadly
 
 * can we get the preview to reflect actual exposure? it seems to always do
   auto-expose

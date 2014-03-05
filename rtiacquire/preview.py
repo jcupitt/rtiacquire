@@ -58,6 +58,7 @@ class Preview(gtk.EventBox):
 
     get_live -- return True if the preview is currently live
     set_live -- turn the live preview on and off
+    get_selection -- get the currently selected rect.Rect (if any)
     """
 
     def draw_rect(self, gc, rect, margin):
@@ -86,86 +87,50 @@ class Preview(gtk.EventBox):
 
     # expose on our gtk.Image
     def expose_event(self, widget, event):
-        window = self.image.get_window()
-
-        if not self.gc:
-            self.white_gc = gtk.gdk.Drawable.new_gc(window,
-                                                    gtk.gdk.Color("white"),
-                                                    gtk.gdk.Color("black"),
-                                                    None,           
-                                                    gtk.gdk.COPY,
-                                                    gtk.gdk.SOLID,
-                                                    None,          
-                                                    None,         
-                                                    None,        
-                                                    gtk.gdk.INCLUDE_INFERIORS,
-                                                    0, 0,
-                                                    0, 0,
-                                                    False,
-                                                    0,          
-                                                    gtk.gdk.LINE_SOLID,
-                                                    gtk.gdk.CAP_NOT_LAST,
-                                                    gtk.gdk.JOIN_MITER) 
-            self.black_gc = gtk.gdk.Drawable.new_gc(window,
-                                                    gtk.gdk.Color("black"),
-                                                    gtk.gdk.Color("white"),
-                                                    None,           
-                                                    gtk.gdk.COPY,
-                                                    gtk.gdk.SOLID,
-                                                    None,          
-                                                    None,         
-                                                    None,        
-                                                    gtk.gdk.INCLUDE_INFERIORS,
-                                                    0, 0,
-                                                    0, 0,
-                                                    False,
-                                                    0,          
-                                                    gtk.gdk.LINE_SOLID,
-                                                    gtk.gdk.CAP_NOT_LAST,
-                                                    gtk.gdk.JOIN_MITER) 
-
-        if self.visible:
-            self.draw_rect(self.black_gc, self.area, select_width)
-            self.draw_rect(self.white_gc, self.area, select_width - 1)
+        if self.select_visible:
+            self.draw_rect(widget.get_style().white_gc, 
+                           self.select_area, select_width)
+            self.draw_rect(widget.get_style().black_gc, 
+                           self.select_area, select_width - 1)
 
         return False
 
     def button_press_event(self, widget, event):
         x = int(event.x)
         y = int(event.y)
-        direction = self.area.which_corner(select_corner, x, y)
+        direction = self.select_area.which_corner(select_corner, x, y)
 
         if self.select_state == SelectState.WAIT and \
-            self.visible and \
+            self.select_visible and \
             direction != rect.Edge.NONE:
             self.select_state = SelectState.RESIZE
             self.resize_direction = direction
-            corner = self.area.corner(direction)
+            corner = self.select_area.corner(direction)
             (cx, cy) = corner.centre()
             self.drag_x = x - cx
             self.drag_y = y - cy
             self.queue_draw()
 
         elif self.select_state == SelectState.WAIT and \
-            self.visible and \
-            self.area.includes_point(x, y):
+            self.select_visible and \
+            self.select_area.includes_point(x, y):
             self.select_state = SelectState.DRAG
-            self.drag_x = x - self.area.left
-            self.drag_y = y - self.area.top
+            self.drag_x = x - self.select_area.left
+            self.drag_y = y - self.select_area.top
             self.queue_draw()
 
         elif self.select_state == SelectState.WAIT and \
-            self.visible:
-            self.visible = False
+            self.select_visible:
+            self.select_visible = False
             self.queue_draw()
 
         elif self.select_state == SelectState.WAIT and \
-            not self.visible:
-            self.visible = True
-            self.area.left = x
-            self.area.top = y
-            self.area.width = 1
-            self.area.height = 1
+            not self.select_visible:
+            self.select_visible = True
+            self.select_area.left = x
+            self.select_area.top = y
+            self.select_area.width = 1
+            self.select_area.height = 1
             self.select_state = SelectState.RESIZE
             self.resize_direction = rect.Edge.SE
             self.drag_x = 1
@@ -179,61 +144,58 @@ class Preview(gtk.EventBox):
         image_height = self.image.get_allocation().height
 
         if self.select_state == SelectState.DRAG:
-            self.area.left = clip(0, 
-                                  x - self.drag_x, 
-                                  image_width - self.area.width)
-            self.area.top = clip(0,
-                                  y - self.drag_y,
-                                  image_height - self.area.height)
+            self.select_area.left = clip(0, 
+                                         x - self.drag_x, 
+                                         image_width - self.select_area.width)
+            self.select_area.top = clip(0,
+                                        y - self.drag_y,
+                                        image_height - self.select_area.height)
             self.queue_draw()
         elif self.select_state == SelectState.RESIZE:
             if self.resize_direction in [rect.Edge.SE, rect.Edge.E,
                                          rect.Edge.NE]:
                 right = x - self.drag_x
-                self.area.width = right - self.area.left
+                self.select_area.width = right - self.select_area.left
 
             if self.resize_direction in [rect.Edge.SW, rect.Edge.S,
                                          rect.Edge.SE]:
                 bottom = y - self.drag_y
-                self.area.height = bottom - self.area.top
+                self.select_area.height = bottom - self.select_area.top
 
             if self.resize_direction in [rect.Edge.SW, rect.Edge.W,
                                          rect.Edge.NW]:
                 left = x - self.drag_x
-                self.area.width = self.area.right() - left
-                self.area.left = left
+                self.select_area.width = self.select_area.right() - left
+                self.select_area.left = left
 
             if self.resize_direction in [rect.Edge.NW, rect.Edge.N,
                                          rect.Edge.NE]:
                 top = y - self.drag_y
-                self.area.height = self.area.bottom() - top
-                self.area.top = top
+                self.select_area.height = self.select_area.bottom() - top
+                self.select_area.top = top
             
-            self.area.normalise()
+            self.select_area.normalise()
             image = rect.Rect(0, 0, image_width, image_height)
-            self.area = self.area.intersection(image)
+            self.select_area = self.select_area.intersection(image)
             self.queue_draw()
 
         elif self.select_state == SelectState.WAIT:
             window = self.image.get_window()
-            direction = self.area.which_corner(select_corner, x, y)
+            direction = self.select_area.which_corner(select_corner, x, y)
 
-            if self.visible and \
+            if self.select_visible and \
                 direction != rect.Edge.NONE:
                 window.set_cursor(resize_cursor_shape[direction])
 
-            elif self.visible and \
-                self.area.includes_point(x, y):
+            elif self.select_visible and \
+                self.select_area.includes_point(x, y):
                 window.set_cursor(drag_cursor_shape)
 
             else:
                 window.set_cursor(None)
 
     def button_release_event(self, widget, event):
-        if self.select_state == SelectState.DRAG:
-            self.select_state = SelectState.WAIT
-        elif self.select_state == SelectState.RESIZE:
-            self.select_state = SelectState.WAIT
+        self.select_state = SelectState.WAIT
 
     def __init__(self, camera):
         """
@@ -256,26 +218,19 @@ class Preview(gtk.EventBox):
         self.pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 
                                      False, 8, 640, 426)
         self.image.set_from_pixbuf(self.pixbuf)
-
-        self.preview_timeout = 0
-
-        self.camera = camera
-
-        self.frame = 0
-
         self.image.set_app_paintable(True)
 
-        self.gc = None
-
-        self.visible = False
-        self.area = rect.Rect(10, 10, 100, 100)
+        self.preview_timeout = 0
+        self.camera = camera
+        self.frame = 0
+        self.select_visible = False
+        self.select_area = rect.Rect(10, 10, 100, 100)
         self.select_state = SelectState.WAIT
         self.resize_direction = rect.Edge.N
         self.drag_x = 0
         self.drag_y = 0
 
         self.image.connect_after('expose-event', self.expose_event)
-
         self.add_events(gtk.gdk.POINTER_MOTION_MASK)
         self.connect('button-press-event', self.button_press_event)
         self.connect('motion-notify-event', self.motion_notify_event)
@@ -300,6 +255,14 @@ class Preview(gtk.EventBox):
         """Return True if the display is currently live."""
         return self.preview_timeout != 0
 
+    def get_selection(self):
+        """Return a rect.Rect for the selection, or None if no selection
+        is active.
+        """
+        if not self.select_visible:
+            return None
+        return self.select_area
+
     def live_cb(self):
         self.grab_frame()
         return True
@@ -319,6 +282,7 @@ class Preview(gtk.EventBox):
             self.preview_timeout = glib.timeout_add(frame_timeout, 
                             self.live_cb)
             self.fps_timeout = glib.timeout_add(1000, self.fps_cb)
+
         elif not live and self.preview_timeout != 0:
             glib.source_remove(self.preview_timeout)
             self.preview_timeout = 0
