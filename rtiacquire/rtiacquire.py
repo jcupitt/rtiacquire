@@ -42,7 +42,7 @@ source_dir = os.path.dirname(__file__)
 preview_timeout = 5000
 
 # hop the lights after this many ms of no light actions -- prevents burnout
-lights_timeout = 10000
+lights_timeout = 3500
 
 # the width of the camera preview
 # the Nikon has a 640 x 426 preview, I don't know what other cameras have,
@@ -85,6 +85,7 @@ class MainWindow(gtk.Window):
             self.live.set_image(self.play_image)
 
         self.preview.set_live(live)
+        self.camera.release()
 
     def live_cb(self, widget, data = None):
         self.set_live(not self.preview.get_live())
@@ -119,7 +120,11 @@ class MainWindow(gtk.Window):
         except camera.Error as e:
             self.info.err(e.message, e.detail)
         else:
-            os.system('xdg-open "%s"' % full_filename)
+            if sys.platform == "darwin":
+                os.system('open "%s"' % full_filename)
+            else:
+                os.system('xdg-open "%s"' % full_filename)
+        self.camera.release()
         self.set_live(live)
 
     def get_lights(self):
@@ -215,7 +220,7 @@ class MainWindow(gtk.Window):
 
             self.camera.preview_to_file(os.path.join(options.tempdir, 
                 'rti_preview_%d.jpg' % i))
-
+	self.camera.release()
         return True
 
     def rti_preview_ptm(self):
@@ -263,13 +268,14 @@ class MainWindow(gtk.Window):
             self.set_lights(i)
 
             self.camera.capture_to_file(os.path.join(self.target, '%d' % i))
-
+            
             # stops the camera locking up
             time.sleep(0.1)
-
+            
             # unless you preview between captures, the Nikon D3X will 
             # autofocus in AF-S mode
-            self.camera.preview()
+            #self.camera.preview()
+            # removed to fix issue with d800 needs testing with D3
 
         logging.debug('capture done in %fs', time.time() - start)
 
@@ -392,9 +398,11 @@ class MainWindow(gtk.Window):
         self.preview.show()
 
         if options.verbose:
-            config = camera.Config(self.camera) 
-            config.prettyprint(sys.stdout, config.get_root_widget())
-
+            try:
+                config = camera.Config(self.camera) 
+                config.prettyprint(sys.stdout, config.get_root_widget())
+            except:
+                logging.debug("No Camera detected: unable to print config")
         eb = gtk.EventBox()
         fixed.put(eb, 0, 0)
         eb.show()
@@ -528,8 +536,7 @@ def main():
     options, args = parser.parse_args()
 
     if options.verbose:
-        logging.basicConfig(level = logging.DEBUG)
-
+        logging.basicConfig(level = logging.DEBUG,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
     if not os.access(options.tempdir, os.W_OK):
         logging.error('tempdir %s not writeable, defaulting to /tmp',
                         options.tempdir)

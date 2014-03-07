@@ -144,4 +144,4 @@ class Lights:
         self.port.write(chr(B))
         self.port.write("C")
         self.port.write(chr(C))
-
+	logging.debug(self.port.readlines())
