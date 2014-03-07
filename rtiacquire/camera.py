@@ -66,6 +66,23 @@ class VaList(ctypes.Structure):
 # gphoto constants
 # Defined in 'gphoto2-port-result.h'
 GP_OK = 0
+GP_ERROR = -1 #generic error
+GP_ERROR_BAD_PARAMETERS = -2 #bad parameters passed
+GP_ERROR_NO_MEMORY = -3 # out of memory
+GP_ERROR_LIBRARY = -4 # error in camera driver
+GP_ERROR_UNKNOWN_PORT = -5 #unknown libgphoto2 port passed
+GP_ERROR_NOT_SUPPORTED = -6 #whatever you tried isn't supported
+GP_ERROR_IO = -7 # Generic I/O error - there's a surprise
+GP_ERROR_FIXED_LIMIT_EXCEEDED = -8 # internal buffer overflow
+GP_ERROR_TIMEOUT = -10 #timeout - no prizes for guessing that one
+GP_ERROR_IO_SUPPORTED_SERIAL = -20 #Serial port not supported
+GP_ERROR_IO_SUPPORTED_USB = -21 #USB ports not supported
+GP_ERROR_IO_INIT = -31 #Unable to init I/O
+GP_ERROR_IO_READ = -34 # I/O Error during read
+GP_ERROR_IO_WRITE = -35 # I/O Error during write
+GP_ERROR_IO_UPDATE = -37 #I/O during update of settings
+GP_ERROR_IO_SERIAL_SPEED = -41 # Serial speed not possible
+GP_ERROR_IO_USB_CLEAR_HALT = -51 #Error
 # CameraCaptureType enum in 'gphoto2-camera.h'
 GP_CAPTURE_IMAGE = 0
 # CameraFileType enum in 'gphoto2-file.h'
@@ -210,10 +227,15 @@ class Camera:
 
         logging.debug('** camera capture')
         cam_path = CameraFilePath()
+        logging.debug("after path")
         retval = gp.gp_camera_capture(self.camera, 
                         GP_CAPTURE_IMAGE, ctypes.byref(cam_path), context)
+
         if retval != GP_OK:
             raise Error('Unable to capture')
+        else:
+            logging.debug("Capture OK")
+
         logging.debug('name = "%s"', cam_path.name)
         logging.debug('folder = "%s"', cam_path.folder)
 
@@ -233,16 +255,23 @@ class Camera:
         retval = gp.gp_camera_file_get(self.camera, 
                         cam_path.folder, cam_path.name, GP_FILE_TYPE_NORMAL, 
                         cam_file, context)
+
         if retval != GP_OK:
             gp.gp_file_unref(cam_file)
             raise Error('Unable to download')
-        
+        else:
+            logging.debug("Download complete")        
+
         logging.debug('** camera delete')
         retval = gp.gp_camera_file_delete(self.camera, 
                         cam_path.folder, cam_path.name, context)
         if retval != GP_OK:
             logging.error('delete error')
+        else:
+            logging.debug("delete complete")
         gp.gp_file_unref(cam_file)
+
+        self.release()
 
         return full_filename
 
