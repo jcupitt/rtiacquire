@@ -228,8 +228,13 @@ class MainWindow(gtk.Window):
         shutil.copy(os.path.join(source_dir, "data", "preview.lp"),
                 os.path.join(options.tempdir))
         self.progress.progress(0.5)
-        retval = os.system('cd %s ; ptmfit -i preview.lp -o preview.ptm' %
-                options.tempdir)
+        cmd = 'cd %s ;' % options.tempdir
+        cmd += ' ptmfit -i preview.lp -o preview.ptm' 
+        rect = self.preview.get_selection()
+        if rect:
+            cmd += ' -crop %d %d %d %d' % \
+                (rect.left, rect.top, rect.width, rect.height)
+        retval = os.system(cmd)
         if retval != 0:
                 self.info.err('Unable to generate preview PTM', 
                     'failed to run ptmfit, is it installed?')
@@ -333,6 +338,10 @@ class MainWindow(gtk.Window):
             index = self.dome_picker.get_active()
             name = self.leds.get_names()[index]
             f.write('Lights "%s"\n' % name)
+            rect = self.preview.get_selection()
+            if rect:
+                f.write('Selection "%d %d %d %d"\n' % \
+                    (rect.left, rect.top, rect.width, rect.height))
             config = camera.Config(self.camera) 
             config.prettyprint(f, config.get_root_widget())
             f.close()
@@ -386,16 +395,11 @@ class MainWindow(gtk.Window):
         self.vbox.pack_start(fixed, False)
         fixed.show()
 
-        eb = gtk.EventBox()
-        eb.add_events(gtk.gdk.POINTER_MOTION_MASK)
-        eb.connect('motion_notify_event', self.preview_motion_cb)
-        fixed.put(eb, 0, 0)
-        eb.show()
-
         self.camera = camera.Camera()
         self.preview = preview.Preview(self.camera)
-        eb.add(self.preview)
+        fixed.put(self.preview, 0, 0)
         self.preview.show()
+        self.preview.connect('motion_notify_event', self.preview_motion_cb)
 
         if options.verbose:
             try:
@@ -508,7 +512,7 @@ class MainWindow(gtk.Window):
             self.toolbar.pack_start(photo, False, False)
             photo.show()
 
-        self.info.msg('Welcome to RTI Acquire', 'v1.2, November 2013')
+        self.info.msg('Welcome to RTI Acquire', 'v1.3, March 2014')
 
         self.show()
 
