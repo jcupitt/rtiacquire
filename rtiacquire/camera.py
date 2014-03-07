@@ -611,6 +611,7 @@ class Config:
         This method can raise camera.Error.
         """
         logging.debug('writing camera config ...')
+        self.camera.connect()
         retval = gp.gp_camera_set_config(self.camera.camera, 
                 self.root_widget, context)
         if retval != GP_OK:

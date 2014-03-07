@@ -261,7 +261,13 @@ class Preview(gtk.EventBox):
         """
         if not self.select_visible:
             return None
-        return self.select_area
+
+        image_width = self.image.get_allocation().width
+        image_height = self.image.get_allocation().height
+        return rect.Rect(1000 * self.select_area.left / image_width,
+                         1000 * self.select_area.top / image_height,
+                         1000 * self.select_area.width / image_width,
+                         1000 * self.select_area.height / image_height)
 
     def live_cb(self):
         self.grab_frame()

@@ -3,7 +3,7 @@
 import os
 import sys
 
-if (sys.platform == 'darwin'):
+if sys.platform == 'darwin':
 	sys.path.append('/usr/local/lib/python2.7/site-packages')
 	os.system('killall -SIGINT PTPCamera')
 

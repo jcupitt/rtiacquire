@@ -229,8 +229,13 @@ class MainWindow(gtk.Window):
         shutil.copy(os.path.join(source_dir, "data", "preview.lp"),
                 os.path.join(options.tempdir))
         self.progress.progress(0.5)
-        retval = os.system('cd %s ; ptmfit -i preview.lp -o preview.ptm' %
-                options.tempdir)
+        cmd = 'cd %s ;' % options.tempdir
+        cmd += ' ptmfit -i preview.lp -o preview.ptm' 
+        rect = self.preview.get_selection()
+        if rect:
+            cmd += ' -crop %d %d %d %d' % \
+                (rect.left, rect.top, rect.width, rect.height)
+        retval = os.system(cmd)
         if retval != 0:
                 self.info.err('Unable to generate preview PTM', 
                     'failed to run ptmfit, is it installed?')
@@ -334,6 +339,10 @@ class MainWindow(gtk.Window):
             index = self.dome_picker.get_active()
             name = self.leds.get_names()[index]
             f.write('Lights "%s"\n' % name)
+            rect = self.preview.get_selection()
+            if rect:
+                f.write('Selection "%d %d %d %d"\n' % \
+                    (rect.left, rect.top, rect.width, rect.height))
             config = camera.Config(self.camera) 
             config.prettyprint(f, config.get_root_widget())
             f.close()
