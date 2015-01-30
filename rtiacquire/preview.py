@@ -20,6 +20,7 @@ import rect
 
 # inter-frame delay, in milliseconds
 # 50 gives around 20 fps and doesn't overload the machine too badly
+# 150 works on a raspberry Pi. 50 is too fast.
 frame_timeout = 50
 
 # width of selection box border
