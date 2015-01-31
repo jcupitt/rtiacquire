@@ -31,3 +31,6 @@ v1.1dev, 17/5/11
 
 v1.3, 5/3/14
     - added a selection box to the preview widget
+
+31/1/15
+    - don't hop lights if no dome present

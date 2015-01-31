@@ -115,7 +115,8 @@ class MainWindow(gtk.Window):
     def photo_cb(self, widget, data = None):
         live = self.preview.get_live()
         self.set_live(False)
-        self.light_hop_cb()
+        if self.dome_controls:
+            self.light_hop_cb()
         try:
             full_filename = self.camera.capture_to_file(preview_filename())
         except camera.Error as e:
