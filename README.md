@@ -1,13 +1,12 @@
-===========
-RTI Acquire
-===========
+# RTI Acquire
 
 This program lets you use a digital camera from your computer. It has a
 live preview window and a full set of manual controls. 
 
-RTIAcquire uses the libgphoto2 library to control the camera, so you must
-have this library on your system and your camera must be supported by
-libgphoto2. They have a list of [supported models](http://www.gphoto.org/proj/libgphoto2/support.php).
+RTIAcquire uses the libgphoto2 library to control the camera,
+so you must have this library on your system and your camera
+must be supported by libgphoto2. They have a list of [supported
+models](http://www.gphoto.org/proj/libgphoto2/support.php).
 
 libgphoto2 does not currently work on Windows without some tinkering. 
 
@@ -19,8 +18,7 @@ take pictures.
 The whole thing is in Python so it should be very easy to customise. There are
 about 600 lines of C for the live preview. 
 
-Prerequistites
-==============
+# Prerequistites
 
 libgphoto2 does not work on Windows, so you need a unix-like system of some
 sort. We've used several Linuxes but OS X should work too. On Debian-family
@@ -35,8 +33,7 @@ The GUI is done in gtk2, so you need the python-gtk2 package.
 RTIAcquire communicates with the lighting system over USB using python-serial.
 You need to have this package installed too. 
 
-Screenshots
-===========
+# Screenshots
 
 ![screenshot](http://www.vips.ecs.soton.ac.uk/development/rti/snapshot11.jpg)
 
@@ -71,8 +68,7 @@ when the program was started.
 
 During RTI capture. 
 
-Use Notes
-=========
+# Use Notes
 
 * Install with something like:
 
@@ -115,16 +111,14 @@ $ RTIAcquire --debug &> log
 * In image preview, click Edit / Preferences and turn off image smoothing
   (smoothing makes checking focus difficult).
 
-Credits
-=======
+# Credits
 
 This software was funded by the UK Arts and Humanities Research Council
 "Reflectance Transformation Imaging System for Ancient Document Artefacts
 Projects" under the Digital Equipment and Database Enhancement for Impact
 Scheme. [Details are available.](http://www.southampton.ac.uk/archaeology/acrg/AHRC_RTI.html)
 
-Todo
-====
+# Todo
 
 * stop mousewheel changing combo boxes
 
@@ -142,8 +136,7 @@ Todo
 
 * name private members with a leading `_`?
 
-Major new features
-==================
+# Major new features
 
 * how do we do light calibration? a separate program?
 
@@ -162,8 +155,7 @@ Major new features
 
 	also, crop before fit to speed the process up
 
-wontfix
-=======
+# wontfix
 
 * can we get the preview to reflect actual exposure? it seems to always do
   auto-expose
